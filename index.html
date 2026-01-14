@@ -69,13 +69,15 @@
       ">
 
     <nav class="fixed top-0 w-full bg-dark/80 backdrop-blur-xl z-50 shadow-2xl border-b border-white/5">
-        <div class="container mx-auto px-4 h-20 flex justify-between items-center">
+        <div class="container mx-auto px-4 h-20 flex justify-center md:justify-between items-center">
+            
             <a href="./" class="flex items-center gap-2 group">
                 <div class="bg-primary p-2 rounded-lg text-dark group-hover:bg-white transition-colors">
                     <i class="fas fa-shop text-xl"></i>
                 </div>
-                <span class="text-xl font-bold tracking-tighter text-white">MeCoffee <span class="text-primary">&
-                        Roastery</span></span>
+                <span class="text-xl font-bold tracking-tighter text-white">
+                    MeCoffee <span class="text-primary">& Roastery</span>
+                </span>
             </a>
 
             <div class="hidden md:flex items-center gap-8 h-full">
@@ -101,10 +103,7 @@
                 </a>
             </div>
 
-            <button @click="mobileMenu = !mobileMenu" class="md:hidden text-2xl text-primary">
-                <i class="fas" :class="mobileMenu ? 'fa-times' : 'fa-bars'"></i>
-            </button>
-        </div>
+            </div>
     </nav>
 
     <header id="beranda" class="relative pt-32 pb-20 md:pt-48 md:pb-32 overflow-hidden min-h-screen flex items-center" 
