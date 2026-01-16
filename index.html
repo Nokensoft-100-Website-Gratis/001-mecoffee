@@ -81,6 +81,63 @@
         [x-cloak] {
             display: none !important;
         }
+
+        /* Gerakan Cangkir dari Kiri ke Kanan */
+        @keyframes cup-move {
+            0% {
+                left: 0%;
+                transform: translateX(0%) rotate(-5deg);
+            }
+
+            50% {
+                transform: translateX(-50%) rotate(5deg);
+            }
+
+            100% {
+                left: 100%;
+                transform: translateX(-100%) rotate(-5deg);
+            }
+        }
+
+        /* Pengisian Bar Sinkron dengan Cangkir */
+        @keyframes bar-fill {
+            0% {
+                width: 0%;
+            }
+
+            100% {
+                width: 100%;
+            }
+        }
+
+        /* Animasi Uap (Steam) */
+        @keyframes steam {
+
+            0%,
+            100% {
+                opacity: 0;
+                transform: translateY(0);
+            }
+
+            50% {
+                opacity: 1;
+                transform: translateY(-10px);
+            }
+        }
+
+        .animate-cup-move {
+            /* Durasi 2 detik sesuai request */
+            animation: cup-move 2s ease-in-out infinite;
+            width: fit-content;
+        }
+
+        .animate-bar-fill {
+            animation: bar-fill 2s ease-in-out infinite;
+        }
+
+        .animate-steam {
+            animation: steam 1.5s ease-in-out infinite;
+        }
     </style>
 </head>
 
@@ -97,16 +154,66 @@
         });
       ">
 
+
+    <div x-data="{ loading: true }" x-init="window.onload = () => { setTimeout(() => loading = false, 2500) }"
+        x-show="loading" x-transition:leave="transition ease-in duration-500" x-transition:leave-start="opacity-100"
+        x-transition:leave-end="opacity-0"
+        class="fixed inset-0 z-[999] bg-dark flex flex-col items-center justify-center">
+        <div class="relative flex flex-col items-center">
+
+            <div class="absolute w-64 h-64 bg-primary/20 rounded-full blur-[100px] -top-32"></div>
+
+            <div class="relative w-64 md:w-80 flex flex-col items-center">
+
+                <div class="absolute -top-12 left-0 animate-cup-move">
+                    <div class="relative flex flex-col items-center">
+                        <i class="fas fa-wind text-primary/40 text-xs absolute -top-4 animate-bounce mb-1"></i>
+                        <i class="fas fa-mug-hot text-primary text-4xl drop-shadow-[0_0_15px_rgba(191,149,13,0.8)]"></i>
+                        <div class="absolute inset-0 bg-primary/30 blur-2xl rounded-full scale-150 -z-10"></div>
+                    </div>
+                </div>
+
+                <div class="w-full h-[3px] bg-white/5 rounded-full overflow-hidden mt-2 relative">
+                    <div
+                        class="h-full bg-gradient-to-r from-transparent via-primary to-primary animate-bar-fill shadow-[0_0_15px_rgba(191,149,13,0.5)]">
+                    </div>
+                </div>
+
+                <div class="mt-8 text-center space-y-2">
+                    <span class="block text-primary font-bold tracking-[0.6em] uppercase text-[10px] md:text-xs">
+                        Brewing Perfection
+                    </span>
+                    <span class="block text-stone-600 text-[9px] uppercase tracking-widest animate-pulse">
+                        Sentani Roastery is heating up...
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+
     <nav class="fixed top-0 w-full bg-dark/80 backdrop-blur-xl z-50 shadow-2xl border-b border-white/5">
         <div class="container mx-auto px-4 h-20 flex justify-center md:justify-between items-center">
 
-            <a href="./" class="flex items-center gap-2 group">
-                <div class="bg-primary p-2 rounded-lg text-dark group-hover:bg-white transition-colors">
-                    <i class="fas fa-shop text-xl"></i>
+            <a href="./" class="flex items-center gap-3 group">
+                <div
+                    class="w-12 h-12 rounded-xl overflow-hidden bg-primary/10 p-1 border border-white/5 group-hover:border-primary/50 transition-all duration-500">
+                    <img src="images/logo.webp" alt="Logo MeCoffee"
+                        class="w-full h-full object-contain transform group-hover:scale-110 transition-transform duration-500"
+                        onerror="this.parentElement.innerHTML='<i class=\'fas fa-mug-hot text-primary text-xl\'></i>'">
                 </div>
-                <span class="text-xl font-bold tracking-tighter text-white">
-                    MeCoffee <span class="text-primary">& Roastery</span>
-                </span>
+
+                <div class="flex flex-col">
+                    <span class="text-xl font-bold tracking-tighter text-white leading-none">
+                        MeCoffee <span class="text-primary">& Roastery</span>
+                    </span>
+                    <span
+                        class="text-[10px] text-stone-500 tracking-[0.2em] uppercase mt-1 group-hover:text-primary transition-colors">
+                        Authentic Papua Coffee
+                    </span>
+                </div>
             </a>
 
             <div class="hidden md:flex items-center gap-8 h-full">
