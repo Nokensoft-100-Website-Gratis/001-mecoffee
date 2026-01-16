@@ -39,9 +39,11 @@
         ::-webkit-scrollbar {
             width: 8px;
         }
+
         ::-webkit-scrollbar-track {
             background: #0A0A0A;
         }
+
         ::-webkit-scrollbar-thumb {
             background: #D4AF37;
             border-radius: 10px;
@@ -51,7 +53,34 @@
             background: radial-gradient(circle at 50% 50%, rgba(212, 175, 55, 0.15) 0%, transparent 70%);
         }
 
-        [x-cloak] { display: none !important; }
+        [x-cloak] {
+            display: none !important;
+        }
+
+        @keyframes zoom-slow {
+            0% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.1);
+            }
+
+            /* Zoom In */
+            100% {
+                transform: scale(1);
+            }
+
+            /* Zoom Out */
+        }
+
+        .animate-zoom-slow {
+            animation: zoom-slow 10s ease-in-out infinite;
+        }
+
+        [x-cloak] {
+            display: none !important;
+        }
     </style>
 </head>
 
@@ -70,7 +99,7 @@
 
     <nav class="fixed top-0 w-full bg-dark/80 backdrop-blur-xl z-50 shadow-2xl border-b border-white/5">
         <div class="container mx-auto px-4 h-20 flex justify-center md:justify-between items-center">
-            
+
             <a href="./" class="flex items-center gap-2 group">
                 <div class="bg-primary p-2 rounded-lg text-dark group-hover:bg-white transition-colors">
                     <i class="fas fa-shop text-xl"></i>
@@ -99,230 +128,547 @@
 
                 <a href="#kontak" @click="activeSection = 'kontak'"
                     class="bg-primary text-dark px-6 py-2.5 rounded-full hover:bg-white transition-all shadow-lg shadow-primary/20 flex items-center gap-2 font-bold">
-                    <i class="fab fa-whatsapp"></i> Hubungi
+                    <i class="fas fa-paper-plane"></i> Hubungi
                 </a>
             </div>
 
-            </div>
+        </div>
     </nav>
 
-    <header id="beranda" class="relative pt-32 pb-20 md:pt-48 md:pb-32 overflow-hidden min-h-screen flex items-center" 
-        x-data="{ 
-            activeSlide: 1, 
-            slides: [
-                {
-                    id: 1,
-                    tag: 'Sejak 2018',
-                    title: 'Mahakarya <span class=\'text-primary italic\'>Kopi Papua</span>',
-                    desc: 'Membawa keunikan cita rasa tanah Papua langsung ke cangkir Anda. Dari apresiasi biji kopi lokal untuk pecinta kopi dunia.',
-                    img: 'images/05.png'
-                },
-                {
-                    id: 2,
-                    tag: 'Visi Kami',
-                    title: 'Jembatan <span class=\'text-primary italic\'>Kopi Dunia</span>',
-                    desc: 'Menjadi motor penggerak kesejahteraan petani kopi yang berkelanjutan dan memperkenalkan kemurnian kopi Papua ke panggung global.',
-                    img: 'images/04.png'
-                }
-            ]
-        }" 
-        x-init="setInterval(() => { activeSlide = activeSlide === 2 ? 1 : activeSlide + 1 }, 6000)">
-    
-    <div class="absolute top-0 right-0 -z-10 w-full h-full">
-        <div class="absolute top-1/4 right-0 w-96 h-96 bg-primary/20 rounded-full blur-[120px]"></div>
-        <div class="absolute bottom-1/4 left-0 w-72 h-72 bg-primary/10 rounded-full blur-[100px]"></div>
-    </div>
+    <header id="beranda" class="relative min-h-screen flex items-center justify-center overflow-hidden" x-data="{ 
+        activeSlide: 0, 
+        slides: [],
+        async init() {
+            const res = await fetch('data/slider.json');
+            const data = await res.json();
+            this.slides = data.slides;
+            setInterval(() => { 
+                this.activeSlide = (this.activeSlide + 1) % this.slides.length 
+            }, 6000);
+        }
+    }">
 
-    <div class="container mx-auto px-4">
-        <template x-for="slide in slides" :key="slide.id">
-            <div x-show="activeSlide === slide.id" 
-                 x-transition:enter="transition ease-out duration-1000"
-                 x-transition:enter-start="opacity-0 translate-x-12"
-                 x-transition:enter-end="opacity-100 translate-x-0"
-                 x-transition:leave="transition ease-in duration-500"
-                 x-transition:leave-start="opacity-100 translate-x-0"
-                 x-transition:leave-end="opacity-0 -translate-x-12"
-                 class="grid md:grid-cols-2 gap-12 items-center"
-                 x-cloak>
-                
-                <div class="space-y-6">
-                    <span class="inline-block px-4 py-1.5 rounded-full bg-primary/10 text-primary border border-primary/20 font-bold text-sm tracking-widest uppercase" x-text="slide.tag"></span>
-                    <h1 class="text-5xl md:text-7xl font-bold leading-tight text-white" x-html="slide.title"></h1>
-                    <p class="text-lg text-stone-400 leading-relaxed max-w-lg" x-text="slide.desc"></p>
-                    
-                    <div class="flex flex-wrap gap-4 pt-4">
-                        <a href="#produk" class="bg-primary text-dark px-8 py-4 rounded-full shadow-xl shadow-primary/20 hover:bg-white transition-all flex items-center gap-2 font-bold">
-                            <i class="fas fa-shopping-bag"></i> Pesan Sekarang
-                        </a>
-                        <a href="#menu" class="border-2 border-primary/50 text-primary px-8 py-4 rounded-full hover:bg-primary/10 transition-all flex items-center gap-2 font-semibold">
-                            <i class="fas fa-mug-hot"></i> Lihat Menu
-                        </a>
+        <div class="absolute inset-0 z-0">
+            <template x-for="(slide, index) in slides" :key="slide.id">
+                <div x-show="activeSlide === index" x-transition:enter="transition opacity duration-1000"
+                    x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+                    x-transition:leave="transition opacity duration-1000" x-transition:leave-start="opacity-100"
+                    x-transition:leave-end="opacity-0" class="absolute inset-0 w-full h-full">
+                    <div class="absolute inset-0 bg-cover bg-center animate-zoom-slow"
+                        :style="`background-image: linear-gradient(to bottom, rgba(0,0,0,0.4), rgba(10,10,10,0.9)), url('${slide.img}')`"
+                        onerror="this.style.backgroundImage='linear-gradient(to bottom, rgba(0,0,0,0.4), rgba(10,10,10,0.9)), url(\'https://placehold.co/1920x1080/161616/D4AF37?text=MeCoffee\')'">
                     </div>
                 </div>
-
-                <div class="relative">
-                    <div class="absolute -inset-4 bg-primary/20 rounded-full blur-3xl opacity-30"></div>
-                    <img :src="slide.img" onerror="this.src='https://placehold.co/600x400/161616/D4AF37?text=MeCoffee'" 
-                         class="relative rounded-3xl shadow-2xl transition-transform duration-700 hover:scale-105 border border-white/10">
-                </div>
-            </div>
-        </template>
-
-        <div class="flex gap-3 mt-12">
-            <template x-for="i in 2">
-                <button @click="activeSlide = i" 
-                        :class="activeSlide === i ? 'w-12 bg-primary' : 'w-3 bg-stone-700'" 
-                        class="h-2 rounded-full transition-all duration-500"></button>
             </template>
         </div>
-    </div>
-</header>
 
-    <section id="menu" class="py-24 bg-card/50 backdrop-blur-sm relative overflow-hidden">
+        <div class="container mx-auto px-4 z-10 text-center">
+            <template x-for="(slide, index) in slides" :key="slide.id">
+                <div x-show="activeSlide === index" x-transition:enter="transition ease-out duration-1000 delay-300"
+                    x-transition:enter-start="opacity-0 y-10" x-transition:enter-end="opacity-100 y-0"
+                    class="max-w-4xl mx-auto space-y-8" x-cloak>
+
+                    <span
+                        class="inline-block px-5 py-2 rounded-full bg-primary/20 text-primary border border-primary/30 font-bold text-xs md:text-sm tracking-[0.2em] uppercase"
+                        x-text="slide.tag"></span>
+
+                    <h1 class="text-5xl md:text-8xl font-bold leading-tight text-white drop-shadow-2xl"
+                        x-html="slide.title"></h1>
+
+                    <p class="text-lg md:text-xl text-stone-300 leading-relaxed max-w-2xl mx-auto drop-shadow-lg"
+                        x-text="slide.desc"></p>
+
+                    <div class="flex flex-wrap justify-center gap-6 pt-8">
+                        <a href="#menu"
+                            class="bg-primary text-dark px-10 py-4 rounded-full shadow-[0_10px_30px_rgba(191,149,13,0.3)] hover:bg-white hover:-translate-y-1 transition-all duration-300 flex items-center gap-3 font-bold">
+                            <i class="fas fa-box"></i> LIHAT MENU
+                        </a>
+                        <a href="#roasting"
+                            class="backdrop-blur-md border-2 border-white/20 text-white px-10 py-4 rounded-full hover:bg-primary hover:border-primary hover:text-dark hover:-translate-y-1 transition-all duration-300 flex items-center gap-3 font-semibold">
+                            <i class="fas fa-mug-hot"></i> Jasa Roasting
+                        </a>
+                    </div>
+                </div>
+            </template>
+
+            <div class="flex justify-center gap-4 mt-16">
+                <template x-for="(slide, index) in slides" :key="index">
+                    <button @click="activeSlide = index"
+                        :class="activeSlide === index ? 'w-16 bg-primary' : 'w-4 bg-white/20 hover:bg-white/40'"
+                        class="h-1.5 rounded-full transition-all duration-700"></button>
+                </template>
+            </div>
+        </div>
+    </header>
+
+    <section id="menu" class="py-24 bg-card/50 backdrop-blur-sm relative overflow-hidden" x-data="{ 
+        activeCategory: 'Authentic Coffee',
+        menuData: [],
+        async init() {
+            try {
+                const response = await fetch('data/menu.json');
+                const data = await response.json();
+                this.menuData = data.categories;
+            } catch (e) { console.error('Gagal memuat data menu'); }
+        }
+    }">
         <div class="container mx-auto px-4">
             <div class="text-center mb-16">
-                <h2 class="text-4xl font-bold text-white uppercase tracking-tighter">Kategori <span class="text-primary">Menu Cafe</span></h2>
-                <p class="text-stone-500 mt-4 max-w-lg mx-auto">Pilihan minuman dan cemilan terbaik untuk menemani waktu santai Anda.</p>
+                <h2 class="text-4xl font-bold text-white uppercase tracking-tighter">Kategori <span
+                        class="text-primary">Menu Cafe</span></h2>
+                <p class="text-stone-500 mt-4 max-w-lg mx-auto">Pilihan minuman dan cemilan terbaik dari Me Coffee Shop
+                    & Roastery.</p>
             </div>
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
-                <template x-for="(cat, index) in ['Espresso Based', 'Manual Brew', 'Non-Coffee', 'Snacks']">
-                    <div class="bg-card p-8 rounded-3xl border border-white/5 hover:border-primary/50 transition-all text-center group cursor-pointer shadow-xl">
-                        <div class="w-20 h-20 bg-primary/5 border border-primary/10 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:bg-primary transition-all group-hover:-translate-y-2">
-                            <i class="fas text-3xl text-primary group-hover:text-dark"
-                                :class="index==0?'fa-coffee':index==1?'fa-filter':index==2?'fa-leaf':'fa-cookie'"></i>
-                        </div>
-                        <h3 class="font-bold text-white text-lg" x-text="cat"></h3>
-                    </div>
+
+            <div class="flex flex-wrap justify-center gap-3 mb-16">
+                <template x-for="cat in [
+                { name: 'Authentic Coffee', icon: 'fa-mug-hot' },
+                { name: 'Manual Brew', icon: 'fa-filter' },
+                { name: 'Me Coffee Signature', icon: 'fa-star' },
+                { name: 'Non Coffee', icon: 'fa-glass-whiskey' },
+                { name: 'Food', icon: 'fa-utensils' },
+                { name: 'Snack', icon: 'fa-cookie-bite' }
+            ]">
+                    <button @click="activeCategory = cat.name"
+                        class="flex items-center gap-2 px-5 py-2.5 rounded-full border transition-all duration-300 text-sm font-bold tracking-wide"
+                        :class="activeCategory === cat.name 
+                        ? 'bg-primary border-primary text-dark shadow-[0_0_15px_rgba(191,149,13,0.4)]' 
+                        : 'bg-white/5 border-white/10 text-white/70 hover:border-primary/50 hover:text-white'">
+                        <i class="fas" :class="cat.icon"></i>
+                        <span x-text="cat.name"></span>
+                    </button>
                 </template>
+            </div>
+
+            <div class="max-w-4xl mx-auto">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-4">
+                    <template x-for="cat in menuData.filter(c => c.name === activeCategory)" :key="cat.name">
+                        <template x-for="item in cat.items" :key="item.name">
+                            <div
+                                class="flex justify-between items-center group p-3 rounded-xl hover:bg-white/5 transition-all border-b border-white/5">
+                                <div class="flex items-center gap-3">
+                                    <div
+                                        class="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center group-hover:bg-primary transition-all">
+                                        <i class="fas text-[12px] text-primary group-hover:text-dark" :class="activeCategory === 'Authentic Coffee' || activeCategory === 'Manual Brew' || activeCategory === 'Me Coffee Signature' ? 'fa-coffee' : 
+                                               activeCategory === 'Non Coffee' ? 'fa-tint' : 'fa-utensils'"></i>
+                                    </div>
+                                    <span
+                                        class="text-white/90 font-medium text-sm md:text-base group-hover:text-primary transition-colors"
+                                        x-text="item.name"></span>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <span
+                                        class="h-[1px] w-8 bg-white/10 group-hover:bg-primary/30 transition-all"></span>
+                                    <span class="text-primary font-bold text-sm" x-text="item.price"></span>
+                                </div>
+                            </div>
+                        </template>
+                    </template>
+                </div>
             </div>
         </div>
     </section>
 
-    <section id="roasting" class="py-24" x-data="{ items: [
-        {id:1, name:'Kopi Paniai Arabica', cat:'roastery', price:'Rp 85.000', img:'images/02.png'},
-        {id:2, name:'Kopi Modio (Dogiyai)', cat:'populer', price:'Rp 90.000', img:'images/02.png'},
-        {id:3, name:'Kopi Bintang Specialty', cat:'roastery', price:'Rp 95.000', img:'images/02.png'},
-        {id:4, name:'Kopi Wamena Honey', cat:'populer', price:'Rp 88.000', img:'images/02.png'},
-        {id:5, name:'Robusta Genyem', cat:'roastery', price:'Rp 65.000', img:'images/02.png'},
-        {id:6, name:'House Blend Papua', cat:'populer', price:'Rp 75.000', img:'images/02.png'}
-    ]}">
+    <section id="roasting" class="py-24 bg-dark/50 overflow-hidden">
         <div class="container mx-auto px-4">
-            <div class="text-center mb-16">
-                <h2 class="text-4xl font-bold text-white">Produk <span class="text-primary italic">Roastery</span> Kami</h2>
-                <p class="text-stone-500 mt-4">Bawa pulang cita rasa kopi terbaik dari tanah Papua dalam kemasan eksklusif.</p>
-            </div>
+            <div class="flex flex-col md:flex-row items-center gap-12 md:gap-20">
 
-            <div class="flex justify-center gap-4 mb-12">
-                <button @click="activeTab = 'populer'"
-                    :class="activeTab === 'populer' ? 'bg-primary text-dark font-bold' : 'bg-card text-stone-400 border border-white/5'"
-                    class="px-8 py-3 rounded-full transition-all shadow-lg">Populer</button>
-                <button @click="activeTab = 'roastery'"
-                    :class="activeTab === 'roastery' ? 'bg-primary text-dark font-bold' : 'bg-card text-stone-400 border border-white/5'"
-                    class="px-8 py-3 rounded-full transition-all shadow-lg">Koleksi Lengkap</button>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <template x-for="item in items" :key="item.id">
-                    <div x-show="activeTab === item.cat" x-transition:enter="transition duration-500"
-                        class="bg-card rounded-[2rem] overflow-hidden border border-white/5 hover:border-primary/30 transition-all group shadow-2xl">
-                        <div class="relative overflow-hidden aspect-[4/3]">
-                            <img src="images/coffee-bag.png" onerror="this.src='https://placehold.co/400x300/161616/D4AF37?text=Product'" :alt="item.name"
-                                class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
-                            <div class="absolute top-4 left-4 bg-primary text-dark px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-tighter"
-                                x-text="item.cat"></div>
-                        </div>
-                        <div class="p-8">
-                            <h3 class="text-2xl font-bold text-white mb-2" x-text="item.name"></h3>
-                            <p class="text-primary font-bold text-xl mb-6" x-text="item.price"></p>
-                            <button
-                                class="w-full py-4 rounded-2xl bg-white/5 border border-primary/20 text-primary font-bold hover:bg-primary hover:text-dark transition-all flex items-center justify-center gap-2">
-                                <i class="fab fa-whatsapp"></i> Pesan Sekarang
-                            </button>
+                <div class="w-full md:w-1/2 relative group">
+                    <div
+                        class="absolute -inset-4 bg-primary/20 rounded-[3rem] blur-3xl opacity-30 group-hover:opacity-50 transition-all duration-700">
+                    </div>
+                    <div
+                        class="relative rounded-[3rem] overflow-hidden border border-white/10 shadow-2xl aspect-[4/5] md:aspect-square">
+                        <img src="images/mecoffee-roasted-beans-portrait.webp" alt="Proses Roasting MeCoffee"
+                            class="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110">
+                        <div
+                            class="absolute bottom-8 left-8 bg-dark/80 backdrop-blur-md p-6 rounded-2xl border border-white/10 max-w-[250px]">
+                            <p class="text-primary font-bold text-2xl mb-1 italic">Premium Quality</p>
+                            <p class="text-white/70 text-xs tracking-widest uppercase">Standard Roastery</p>
                         </div>
                     </div>
-                </template>
+                </div>
+
+                <div class="w-full md:w-1/2 space-y-8">
+                    <div
+                        class="inline-block px-5 py-2 rounded-full bg-primary/10 border border-primary/20 text-primary font-bold text-sm tracking-widest uppercase">
+                        Professional Services
+                    </div>
+                    <h2 class="text-4xl md:text-6xl font-bold text-white leading-tight">
+                        Jasa <span class="text-primary italic">Roasting</span> Kopi Papua
+                    </h2>
+                    <p class="text-stone-400 text-lg leading-relaxed">
+                        MeCoffee bukan sekadar cafe, kami hadir dan berdedikasi menjaga karakter dan meningkatkan
+                        kualitas asli kopi Papua. Kami menyediakan jasa sangrai (roasting) untuk para petani lokal,
+                        pemilik kedai kopi, hingga pecinta kopi rumahan.
+                    </p>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                        <div class="flex gap-4 items-start group">
+                            <div
+                                class="w-12 h-12 shrink-0 rounded-xl bg-primary/10 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-dark transition-all">
+                                <i class="fas fa-fire"></i>
+                            </div>
+                            <div>
+                                <h4 class="text-white font-bold mb-1">Custom Roast</h4>
+                                <p class="text-stone-500 text-sm">Light, Medium, atau Dark Roast sesuai permintaan.</p>
+                            </div>
+                        </div>
+                        <div class="flex gap-4 items-start group">
+                            <div
+                                class="w-12 h-12 shrink-0 rounded-xl bg-primary/10 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-dark transition-all">
+                                <i class="fas fa-microchip"></i>
+                            </div>
+                            <div>
+                                <h4 class="text-white font-bold mb-1">Modern Machine</h4>
+                                <p class="text-stone-500 text-sm">Menggunakan teknologi terkini untuk hasil konsisten.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="pt-6">
+                        <a href="https://wa.me/6282311005950?text=Halo%20MeCoffee,%20saya%20ingin%20tanya%20tentang%20jasa%20roasting"
+                            target="_blank"
+                            class="inline-flex items-center gap-4 bg-primary text-dark px-10 py-4 rounded-full font-black hover:bg-white hover:-translate-y-1 transition-all shadow-xl shadow-primary/20">
+                            KONSULTASI JASA ROASTING <i class="fab fa-whatsapp text-xl"></i>
+                        </a>
+                    </div>
+                </div>
+
             </div>
         </div>
     </section>
 
-    <section id="galeri" class="py-24 bg-card relative">
+    <section id="galeri" class="py-24 bg-card relative" x-data="{ 
+        gallery: [], 
+        selectedImg: null, 
+        async init() {
+            try {
+                const res = await fetch('data/galeri.json');
+                const data = await res.json();
+                this.gallery = data.images;
+            } catch (e) { console.error('Gagal memuat galeri'); }
+        }
+    }">
         <div class="container mx-auto px-4">
             <div class="text-center mb-16">
-                <h2 class="text-3xl font-bold italic text-white uppercase tracking-widest">Galeri <span class="text-primary">MeCoffee</span></h2>
+                <h2 class="text-3xl font-bold italic text-white uppercase tracking-widest">Galeri <span
+                        class="text-primary">MeCoffee</span></h2>
                 <div class="h-1 w-20 bg-primary mx-auto mt-4 rounded-full"></div>
             </div>
 
-            <div class="grid grid-cols-2 md:grid-cols-3 gap-6" x-data="{ total: 6 }">
-                <template x-for="i in total" :key="i">
-                    <div class="aspect-square overflow-hidden rounded-3xl group relative border border-white/5 shadow-2xl">
-                        <img :src="'images/0' + i + '.png'" 
-                            onerror="this.src='https://placehold.co/400x400/161616/D4AF37?text=Moment'" 
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+                <template x-for="img in gallery" :key="img.url">
+                    <div @click="selectedImg = img.url"
+                        class="aspect-video overflow-hidden rounded-3xl group relative border border-white/5 shadow-2xl cursor-pointer">
+                        <img :src="img.url"
                             class="w-full h-full object-cover transition-all duration-700 opacity-60 group-hover:opacity-100 group-hover:scale-110">
-                        <div class="absolute inset-0 bg-gradient-to-t from-dark via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500 flex items-end p-6">
-                            <i class="fas fa-expand text-primary text-2xl"></i>
+                        <div
+                            class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-all duration-500 flex items-center justify-center">
+                            <i class="fas fa-expand-alt text-primary text-3xl"></i>
                         </div>
                     </div>
                 </template>
             </div>
         </div>
+
+        <template x-teleport="body">
+            <div x-show="selectedImg" x-transition:enter="transition ease-out duration-300"
+                x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+                x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100"
+                x-transition:leave-end="opacity-0"
+                class="fixed inset-0 z-[100] flex items-center justify-center bg-dark/95 p-4 md:p-10"
+                @click.away="selectedImg = null" @keydown.escape.window="selectedImg = null">
+
+                <button @click="selectedImg = null"
+                    class="absolute top-8 right-8 text-white/50 hover:text-primary transition-colors z-[110]">
+                    <i class="fas fa-times text-4xl"></i>
+                </button>
+
+                <img :src="selectedImg"
+                    class="max-w-full max-h-full object-contain shadow-[0_0_50px_rgba(0,0,0,0.5)] rounded-lg"
+                    @click.stop>
+            </div>
+        </template>
     </section>
+
+
+    <!-- ULASAN GOOGLE -->
+    <!-- <section id="ulasan" class="py-24 bg-dark/30 relative overflow-hidden" x-data="{ 
+        reviews: [], 
+        async init() {
+            try {
+                const res = await fetch('data/ulasan.json');
+                const data = await res.json();
+                this.reviews = data.reviews;
+            } catch (e) { console.error('Gagal memuat ulasan'); }
+        }
+    }">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col md:flex-row justify-between items-end mb-12 gap-6">
+                <div class="text-left">
+                    <h2 class="text-4xl font-bold text-white uppercase tracking-tighter">
+                        Ulasan <span class="text-primary italic">Pengunjung</span>
+                    </h2>
+                    <div class="flex items-center gap-2 mt-2 text-stone-500">
+                        <div class="flex text-primary text-sm">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                        </div>
+                        <span>4.9 di Google Maps</span>
+                    </div>
+                </div>
+                <div class="hidden md:flex gap-3">
+                    <button @click="$refs.slider.scrollBy({left: -300, behavior: 'smooth'})"
+                        class="w-12 h-12 rounded-full border border-white/10 flex items-center justify-center text-white hover:bg-primary hover:text-dark transition-all">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <button @click="$refs.slider.scrollBy({left: 300, behavior: 'smooth'})"
+                        class="w-12 h-12 rounded-full border border-white/10 flex items-center justify-center text-white hover:bg-primary hover:text-dark transition-all">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div x-ref="slider" class="flex overflow-x-auto gap-6 pb-8 snap-x no-scrollbar scroll-smooth">
+                <template x-for="rev in reviews" :key="rev.nama">
+                    <div
+                        class="min-w-[300px] md:min-w-[calc(33.333%-1rem)] snap-start bg-card p-8 rounded-[2rem] border border-white/5 shadow-xl flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center gap-4 mb-6">
+                                <div class="w-12 h-12 rounded-full bg-gradient-to-tr from-primary to-yellow-600 flex items-center justify-center text-dark font-bold text-xl"
+                                    x-text="rev.nama.charAt(0)"></div>
+                                <div>
+                                    <h4 class="text-white font-bold text-sm" x-text="rev.nama"></h4>
+                                    <p class="text-[10px] text-stone-500 uppercase tracking-widest">Local Guide • Google
+                                        Maps</p>
+                                </div>
+                            </div>
+
+                            <div class="flex text-primary text-[10px] mb-4">
+                                <template x-for="i in rev.bintang">
+                                    <i class="fas fa-star"></i>
+                                </template>
+                            </div>
+
+                            <p class="text-stone-400 text-sm leading-relaxed italic"
+                                x-text="'&quot;' + rev.ulasan + '&quot;'"></p>
+                        </div>
+
+                        <div class="mt-6 pt-6 border-t border-white/5 flex items-center gap-2">
+                            <i class="fab fa-google text-stone-600 text-xs"></i>
+                            <span class="text-[10px] text-stone-600 uppercase font-bold">Terverifikasi</span>
+                        </div>
+                    </div>
+                </template>
+            </div>
+        </div>
+
+        <style>
+            .no-scrollbar::-webkit-scrollbar {
+                display: none;
+            }
+
+            .no-scrollbar {
+                -ms-overflow-style: none;
+                scrollbar-width: none;
+            }
+        </style>
+    </section> -->
 
     <footer id="kontak" class="bg-dark border-t border-white/5 pt-24 pb-32 md:pb-12">
         <div class="container mx-auto px-4">
             <div class="grid md:grid-cols-2 gap-16 mb-20">
                 <div class="space-y-10">
                     <div>
-                        <h2 class="text-4xl font-bold text-white mb-6">Mampir ke <span class="text-primary italic">Rumah Kami</span></h2>
-                        <p class="text-stone-500 leading-relaxed">Nikmati kopi Papua terbaik langsung di Sentani atau pesan untuk pengiriman ke seluruh Indonesia.</p>
+                        <h2 class="text-4xl font-bold text-white mb-6">Mampir ke <span
+                                class="text-primary italic">MeCoffee</span></h2>
+                        <p class="text-stone-500 leading-relaxed">Nikmati kopi Papua terbaik langsung di Sentani atau
+                            pesan untuk pengiriman ke seluruh Indonesia.</p>
                     </div>
-                    <div class="space-y-6">
+
+                    <div class="space-y-8">
                         <div class="flex gap-6 items-start">
-                            <div class="bg-primary/10 border border-primary/20 p-4 rounded-2xl text-primary"><i class="fas fa-location-dot text-xl"></i></div>
+                            <div class="bg-primary/10 border border-primary/20 p-4 rounded-2xl text-primary shrink-0">
+                                <i class="fas fa-location-dot text-xl"></i>
+                            </div>
                             <div>
                                 <h4 class="text-white font-bold mb-1">Lokasi</h4>
-                                <p class="text-stone-400">Jalan Pasir, Kelurahan Sentani Kota, Distrik Sentani Kota, Kabupaten Jayapura, Papua 99352</p>
+                                <p class="text-stone-400 leading-relaxed text-sm">
+                                    Jalan Pasir, Kelurahan Sentani Kota, Distrik Sentani Kota,<br>
+                                    Kabupaten Jayapura, Papua 99352
+                                </p>
                             </div>
                         </div>
+
                         <div class="flex gap-6 items-center">
-                            <div class="bg-primary/10 border border-primary/20 p-4 rounded-2xl text-primary"><i class="fas fa-phone text-xl"></i></div>
+                            <div class="bg-primary/10 border border-primary/20 p-4 rounded-2xl text-primary shrink-0">
+                                <i class="fas fa-phone text-xl"></i>
+                            </div>
                             <div>
                                 <h4 class="text-white font-bold mb-1">Telepon</h4>
-                                <p class="text-stone-400">082311005950</p>
+                                <p class="text-stone-400">0823-1100-5950</p>
+                            </div>
+                        </div>
+
+                        <div class="flex gap-6 items-start">
+                            <div class="bg-primary/10 border border-primary/20 p-4 rounded-2xl text-primary shrink-0">
+                                <i class="fas fa-clock text-xl"></i>
+                            </div>
+                            <div class="w-full max-w-xs">
+                                <h4 class="text-white font-bold mb-3">Jam Operasional</h4>
+                                <div class="space-y-2 text-sm">
+                                    <div class="flex justify-between text-stone-400 border-b border-white/5 pb-1">
+                                        <span>Senin - Kamis</span> <span class="text-white">08.00 – 18.00</span>
+                                    </div>
+                                    <div
+                                        class="flex justify-between text-stone-400 border-b border-white/5 pb-1 font-medium italic">
+                                        <span class="text-primary">Jumat - Sabtu</span> <span
+                                            class="text-primary font-bold">08.00 – 20.00</span>
+                                    </div>
+                                    <div class="flex justify-between text-stone-500 italic">
+                                        <span>Minggu</span> <span
+                                            class="text-red-500 uppercase text-[10px] font-bold mt-1">Tutup</span>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="rounded-[2.5rem] overflow-hidden shadow-2xl h-[400px] border border-white/5 grayscale hover:grayscale-0 transition-all duration-1000">
+                <div
+                    class="rounded-[2.5rem] overflow-hidden shadow-2xl h-[450px] border border-white/5 grayscale hover:grayscale-0 transition-all duration-1000 group">
                     <iframe
-                        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d15951.365775836263!2d140.4851!3d-2.585!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMsKwMzUnMDYuMCJTIDE0MMKwMjknMDYuNCJF!5e0!3m2!1sid!2sid!4v1700000000000!5m2!1sid!2sid"
-                        width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
+                        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d498.2249204588434!2d140.52095894249763!3d-2.5719006872043457!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x686cf1c7d26d7df3%3A0x263c5b966ad1003a!2sMe%20Coffee%20-%20Coffee%20Shop%20%26%20Roastery!5e0!3m2!1sid!2sid!4v1768551823835!5m2!1sid!2sid"
+                        width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy"
+                        referrerpolicy="no-referrer-when-downgrade"
+                        class="opacity-70 group-hover:opacity-100 transition-opacity">
+                    </iframe>
                 </div>
             </div>
 
-            <div class="pt-10 border-t border-white/5 text-center">
-                <p class="text-stone-600 text-sm italic">© 2026 MeCoffee and Roastery. <span class="text-stone-700">Powered by Nokensoft</span></p>
+            <div class="pt-10 border-t border-white/5">
+                <div class="flex flex-col md:flex-row justify-between items-center gap-8">
+                    <p class="text-stone-600 text-sm italic text-center md:text-left order-3 md:order-1">
+                        © 2026 MeCoffee and Roastery. All Rights Reserved.
+                    </p>
+
+                    <div class="flex items-center gap-6 order-1 md:order-2">
+                        <a href="https://www.instagram.com/mecoffee_official" target="_blank" rel="noopener noreferrer"
+                            class="text-stone-500 hover:text-primary transition-all duration-300 transform hover:-translate-y-1">
+                            <i class="fab fa-instagram text-xl"></i>
+                        </a>
+                        <a href="https://whatsapp.com/channel/0029Vb5orL2IiRotbgaeEz2B" target="_blank"
+                            rel="noopener noreferrer"
+                            class="text-stone-500 hover:text-primary transition-all duration-300 transform hover:-translate-y-1">
+                            <i class="fab fa-whatsapp text-xl"></i>
+                        </a>
+                        <a href="https://www.youtube.com/@mecoffee_official" target="_blank" rel="noopener noreferrer"
+                            class="text-stone-500 hover:text-primary transition-all duration-300 transform hover:-translate-y-1">
+                            <i class="fab fa-youtube text-xl"></i>
+                        </a>
+                    </div>
+
+                    <p class="text-stone-600 text-sm italic text-center md:text-right order-2 md:order-3">
+                        Powered by
+                        <a href="https://nokensoft.com" target="_blank" rel="noopener noreferrer"
+                            class="text-stone-400 hover:text-primary transition-colors duration-300 font-semibold not-italic">
+                            Nokensoft.com
+                        </a>
+                    </p>
+                </div>
             </div>
+
+
         </div>
     </footer>
 
-    <div class="fixed bottom-6 left-1/2 -translate-x-1/2 w-[90%] md:hidden bg-dark/60 backdrop-blur-2xl rounded-full px-8 py-5 flex justify-between items-center text-white/50 z-50 shadow-2xl border border-white/10">
-        <a href="#beranda" class="flex flex-col items-center gap-1 hover:text-primary transition-all">
-            <i class="fas fa-home"></i>
-            <span class="text-[10px] font-bold">HOME</span>
+    <div x-data="{ activeMenu: window.location.hash || '#beranda' }"
+        @hashchange.window="activeMenu = window.location.hash"
+        class="fixed bottom-6 left-1/2 -translate-x-1/2 w-[90%] md:hidden bg-dark/80 backdrop-blur-2xl rounded-full px-8 py-4 flex justify-between items-center z-50 shadow-2xl border border-white/10">
+        <a href="#beranda" @click="activeMenu = '#beranda'"
+            :class="activeMenu === '#beranda' ? 'text-primary scale-110' : 'text-white/50'"
+            class="flex flex-col items-center gap-1 transition-all duration-300">
+            <i class="fas fa-home text-lg"></i>
+            <span class="text-[10px] font-bold tracking-widest">HOME</span>
+            <div x-show="activeMenu === '#beranda'" class="w-1 h-1 bg-primary rounded-full"></div>
         </a>
-        <a href="#menu" class="flex flex-col items-center gap-1 hover:text-primary transition-all">
-            <i class="fas fa-utensils"></i>
-            <span class="text-[10px] font-bold">MENU</span>
+
+        <a href="#menu" @click="activeMenu = '#menu'"
+            :class="activeMenu === '#menu' ? 'text-primary scale-110' : 'text-white/50'"
+            class="flex flex-col items-center gap-1 transition-all duration-300">
+            <i class="fas fa-utensils text-lg"></i>
+            <span class="text-[10px] font-bold tracking-widest">MENU</span>
+            <div x-show="activeMenu === '#menu'" class="w-1 h-1 bg-primary rounded-full"></div>
         </a>
-        <a href="#roasting" class="flex flex-col items-center gap-1 hover:text-primary transition-all">
-            <i class="fas fa-box-open"></i>
-            <span class="text-[10px] font-bold">ROASTERY</span>
+
+        <a href="#roasting" @click="activeMenu = '#roasting'"
+            :class="activeMenu === '#roasting' ? 'text-primary scale-110' : 'text-white/50'"
+            class="flex flex-col items-center gap-1 transition-all duration-300">
+            <i class="fas fa-fire-alt text-lg"></i>
+            <span class="text-[10px] font-bold tracking-widest">ROASTERY</span>
+            <div x-show="activeMenu === '#roasting'" class="w-1 h-1 bg-primary rounded-full"></div>
         </a>
-        <a href="#kontak" class="flex flex-col items-center gap-1 text-primary">
-            <i class="fas fa-paper-plane"></i>
-            <span class="text-[10px] font-bold">KONTAK</span>
+
+        <a href="#kontak" @click="activeMenu = '#kontak'"
+            :class="activeMenu === '#kontak' ? 'text-primary scale-110' : 'text-white/50'"
+            class="flex flex-col items-center gap-1 transition-all duration-300">
+            <i class="fas fa-paper-plane text-lg"></i>
+            <span class="text-[10px] font-bold tracking-widest">KONTAK</span>
+            <div x-show="activeMenu === '#kontak'" class="w-1 h-1 bg-primary rounded-full"></div>
         </a>
+    </div>
+
+
+    <!-- WIDGETS BUTTONS -->
+    <div class="fixed bottom-28 md:bottom-10 right-6 z-[100] flex flex-col gap-4 items-end" x-data="{ showLabel: '' }">
+
+        <div class="flex items-center gap-3 group">
+            <span x-show="showLabel === 'wa'" x-transition:enter="transition ease-out duration-300"
+                x-transition:enter-start="opacity-0 translate-x-4" x-transition:enter-end="opacity-100 translate-x-0"
+                x-transition:leave="transition ease-in duration-200"
+                class="bg-white text-dark text-xs font-bold px-4 py-2 rounded-lg shadow-2xl pointer-events-none whitespace-nowrap border-l-4 border-green-500">
+                Ada pertanyaan? Chat kami sekarang!
+            </span>
+
+            <a href="https://wa.me/6282311005950" target="_blank" @mouseenter="showLabel = 'wa'"
+                @mouseleave="showLabel = ''"
+                class="w-14 h-14 bg-[#25D366] rounded-full flex items-center justify-center shadow-[0_10px_25px_rgba(37,211,102,0.4)] hover:scale-110 hover:-rotate-12 transition-all duration-300 group">
+                <svg class="w-8 h-8 fill-white" viewBox="0 0 24 24">
+                    <path
+                        d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
+                </svg>
+            </a>
+        </div>
+
+        <div class="flex items-center gap-3 group">
+            <span x-show="showLabel === 'google'" x-transition:enter="transition ease-out duration-300"
+                x-transition:enter-start="opacity-0 translate-x-4" x-transition:enter-end="opacity-100 translate-x-0"
+                x-transition:leave="transition ease-in duration-200"
+                class="bg-white text-dark text-xs font-bold px-4 py-2 rounded-lg shadow-2xl pointer-events-none whitespace-nowrap border-l-4 border-blue-500">
+                Suka kopi kami? Berikan ulasan!
+            </span>
+
+            <a href="https://share.google/qnlGiSAWcfT4BBe0m" target="_blank" @mouseenter="showLabel = 'google'"
+                @mouseleave="showLabel = ''"
+                class="w-14 h-14 bg-white rounded-full flex items-center justify-center shadow-xl hover:scale-110 transition-all duration-300 border border-gray-100 group">
+                <svg class="w-7 h-7" viewBox="0 0 24 24">
+                    <path fill="#4285F4"
+                        d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+                    <path fill="#34A853"
+                        d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+                    <path fill="#FBBC05"
+                        d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" />
+                    <path fill="#EA4335"
+                        d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
+                </svg>
+            </a>
+        </div>
+
     </div>
 
 </body>
